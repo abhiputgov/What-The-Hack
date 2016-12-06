@@ -11,7 +11,9 @@ angular.module('starter.controllers', [])
 
   // Form data for the login modal
   $scope.loginData = {};
-
+  $scope.currentUser = {};
+  $scope.isSignedIn = false;
+  
   // Create the login modal that we will use later
   $ionicModal.fromTemplateUrl('templates/login.html', {
     scope: $scope
@@ -53,4 +55,38 @@ angular.module('starter.controllers', [])
 })
 
 .controller('PlaylistCtrl', function($scope, $stateParams) {
+})
+
+.controller('LoginwithGoogle', function($scope) {
+   
+   $scope.LoginwithGoogle = function(){
+     $scope.GoogleAuth = gapi.auth2.getAuthInstance();
+    $scope.isSignedIn = !$scope.GoogleAuth.isSignedIn.get();
+      if($scope.isSignedIn){
+        $scope.GoogleAuth.signIn({
+        scope: 'email https://www.googleapis.com/auth/calendar'
+      }).then(function(response) {
+        console.log(response);
+        console.log('comes here');
+        $scope.modal.hide();
+        $scope.currentUser = response;
+        $scope.userGivenName = $scope.currentUser.getBasicProfile().getName();
+        $scope.userImage = $scope.currentUser.getBasicProfile().getImageUrl();
+        $scope.isSignedIn = true;
+        // Handle response
+      }, function(reason) {
+        console.log(reason);
+        $scope.isSignedIn = false;
+        // Handle error
+      });
+        
+    }else{
+      console.log('comes here');
+      $scope.currentUser = $scope.GoogleAuth.currentUser.get();
+      $scope.userGivenName = $scope.currentUser.getBasicProfile().getName();
+      $scope.userImage = $scope.currentUser.getBasicProfile().getImageUrl();
+      $scope.isSignedIn = true;
+    }
+    
+  };
 });
